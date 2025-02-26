@@ -1,0 +1,8 @@
+---
+description: This is usefull for to identify the folders and terminal commands
+globs: **/*
+---
+
+# Your rule content
+
+- The project have backend and frontend folders. You need to modify your terminal commands according to that always.
