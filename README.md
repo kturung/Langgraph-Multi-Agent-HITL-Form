@@ -4,7 +4,7 @@ A demonstration project showcasing Langgraph's capabilities for Multi-Agent Coll
 
 
 
-https://github.com/user-attachments/assets/ae7a3f6f-8adb-45ef-8482-24f60cb57568
+https://github.com/user-attachments/assets/5652fb98-d24b-40c1-9b24-30f2157b7160
 
 
 
