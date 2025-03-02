@@ -1,96 +1,138 @@
+import datetime
+from collections import defaultdict
+from typing import Callable
+from langchain_core.runnables import RunnableConfig
 from langchain_openai import ChatOpenAI
-from langchain_ollama import ChatOllama
-from langgraph_supervisor import create_supervisor
+from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.prebuilt import create_react_agent
+from langgraph_swarm import create_handoff_tool, create_swarm
 from langgraph.types import interrupt
 
-#model = ChatOllama(model="mistral-small:latest", temperature=0)
-model = ChatOpenAI(base_url="https://api.githubcopilot.com", model="claude-3.5-sonnet", temperature=0)
 
-# Create specialized agents
-def get_product_backlog_items():
-    """Get the product backlog items for the user."""
-    # Write some mock product backlog items
-    return [
-        {   
-            "name": "Implement the frontend with Next.js and Tailwind CSS",
-            "id": "1"
-        },
-        {
-            "name": "Implement the backend with FastAPI",
-            "id": "2"
-        },
-        {
-            "name": "Implement the database with PostgreSQL",
-            "id": "3"
-        },
-        {
-            "name": "Implement the authentication with NextAuth",
-            "id": "4"
-        },   
-    ]
-
-def get_product_backlog_item_details(id: int):
-    """Get the details of the product backlog item for the user."""
-    # Write some mock product backlog item details
-    return [
-        {
-            "id": "1",
-            "details": "Frontend will be built with Next.js and Tailwind CSS. It will be a single page application with a sidebar for navigation."
-        },
-        {
-            "id": "2",
-            "details": "Backend will be built with FastAPI. It will be a RESTful API that will be used to store and retrieve data from the database."
-        },
-        {
-            "id": "3",
-            "details": "Database will be built with PostgreSQL. It will be used to store and retrieve data from the backend."
-        },
-        {
-            "id": "4",
-            "details": "Authentication will be built with NextAuth. It will be used to authenticate the user and provide a secure way to store and retrieve data from the database."
-        },
-    ]
+# Update the model configuration
+model = ChatOpenAI(model="gpt-4o", temperature=0)
 
 
-def create_deployment_ticket():
-    """This tool will show the user the deployment ticket form."""
-    value = interrupt("What is the deployment ticket details?")
-    print(value)
-    return "Deployment ticket created successfully"
+# Mock data for tools
+RESERVATIONS = defaultdict(lambda: {"flight_info": {}, "hotel_info": {}})
+
+TOMORROW = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
+FLIGHTS = [
+    {
+        "departure_airport": "BOS",
+        "arrival_airport": "JFK",
+        "airline": "Jet Blue",
+        "date": TOMORROW,
+        "id": "1",
+    }
+]
+HOTELS = [
+    {
+        "location": "New York",
+        "name": "McKittrick Hotel",
+        "neighborhood": "Chelsea",
+        "id": "1",
+    }
+]
 
 
-#def get_user_details():
-#    """Get the details of the user by presenting a form"""
-#    value = interrupt("What is the user's name and age?")
-#    return value
+# Flight tools
+def search_flights(
+    departure_airport: str,
+    arrival_airport: str,
+    date: str,
+) -> list[dict]:
+    """Search flights.
 
-product_backlog_manager = create_react_agent(
-    model=model,
-    tools=[get_product_backlog_items, get_product_backlog_item_details],
-    name="product_backlog_assistant",
-    prompt="You are a product backlog assistant. You are responsible for gathering product backlog item lists and getting details about each item."
+    Args:
+        departure_airport: 3-letter airport code for the departure airport. If unsure, use the biggest airport in the area
+        arrival_airport: 3-letter airport code for the arrival airport. If unsure, use the biggest airport in the area
+        date: YYYY-MM-DD date
+    """
+    # return all flights for simplicity
+    return FLIGHTS
+
+
+def book_flight(
+    flight_id: str,
+    config: RunnableConfig,
+) -> str:
+    """Book a flight."""
+
+
+
+    return "Successfully booked flight"
+
+
+# Hotel tools
+def search_hotels(location: str) -> list[dict]:
+    """Search hotels.
+
+    Args:
+        location: offical, legal city name (proper noun)
+    """
+    # return all hotels for simplicity
+    return HOTELS
+
+
+def book_hotel(hotel_id: str):
+    """Book a hotel"""
+    value = interrupt("Enter the form data for the hotel booking")
+    print(str(value) + hotel_id)
+    return "Successfully booked hotel"
+
+
+# Define handoff tools
+transfer_to_hotel_assistant = create_handoff_tool(
+    agent_name="hotel_assistant",
+    description="Transfer user to the hotel-booking assistant that can search for and book hotels.",
+)
+transfer_to_flight_assistant = create_handoff_tool(
+    agent_name="flight_assistant",
+    description="Transfer user to the flight-booking assistant that can search for and book flights.",
 )
 
-deployment_assistant = create_react_agent(
-    model=model,
-    tools=[create_deployment_ticket],
-    name="deployment_assistant",
-    prompt="You are a deployment ticket assistant. You are responsible for helping the user create a deployment ticket."
+
+# Define agent prompt
+def make_prompt(base_system_prompt: str) -> Callable[[dict, RunnableConfig], list]:
+    def prompt(state: dict, config: RunnableConfig) -> list:
+        system_prompt = (
+            base_system_prompt
+            + f"Today is: {datetime.datetime.now()}"
+        )
+        return [{"role": "system", "content": system_prompt}] + state["messages"]
+
+    return prompt
+
+
+# Define agents
+flight_assistant = create_react_agent(
+    model,
+    [search_flights, book_flight, transfer_to_hotel_assistant],
+    prompt=make_prompt("You are a flight booking assistant"),
+    name="flight_assistant",
 )
 
-# Create supervisor workflow
-workflow = create_supervisor(
-    [deployment_assistant, product_backlog_manager],
-    model=model,
-    prompt=(
-        "You are a team supervisor managing a deployment assistant and a product backlog assistant."
-        "For product backlog management, use product_backlog_assistant."
-        "For deployment ticket creation, use deployment_assistant."
-    )
+hotel_assistant = create_react_agent(
+    model,
+    [search_hotels, book_hotel, transfer_to_flight_assistant],
+    prompt=make_prompt("You are a hotel booking assistant"),
+    name="hotel_assistant",
 )
 
-# Compile and run
-graph = workflow.compile()
+# Compile and run!
+checkpointer = InMemorySaver()
+builder = create_swarm([flight_assistant, hotel_assistant], default_active_agent="flight_assistant")
 
-graph.name = "Super Agent"
+# Important: compile the swarm with a checkpointer to remember
+# previous interactions and last active agent
+app = builder.compile(checkpointer=checkpointer)
+# config = {"configurable": {"thread_id": "1", "user_id": "1"}}
+# result = app.invoke({
+#     "messages": [
+#         {
+#             "role": "user",
+#             "content": "i am looking for a flight from boston to ny tomorrow"
+#         }
+#     ],
+# }, config)

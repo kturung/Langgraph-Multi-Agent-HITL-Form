@@ -3,7 +3,7 @@
 import { Thread } from "@assistant-ui/react";
 import { PriceSnapshotTool } from "@/components/tools/price-snapshot/PriceSnapshotTool";
 import { PurchaseStockTool } from "@/components/tools/purchase-stock/PurchaseStockTool";
-import { CreateDeploymentTicketTool } from "@/components/tools/create-deployment-ticket/CreateDeploymentTicketTool";
+import { BookHotelTool } from "@/components/tools/book-hotel/BookHotelTool";
 import { ToolFallback } from "@/components/tools/ToolFallback";
 import { makeMarkdownText } from "@assistant-ui/react-markdown";
 
@@ -25,12 +25,12 @@ export default function Home() {
               prompt: "What's the current stock price of Tesla?",
             },
             {
-              prompt: "Create a deployment ticket for our application",
+              prompt: "I want to book a hotel",
             },
           ],
         }}
         assistantMessage={{ components: { Text: MarkdownText, ToolFallback } }}
-        tools={[PriceSnapshotTool, PurchaseStockTool, CreateDeploymentTicketTool]}
+        tools={[PriceSnapshotTool, PurchaseStockTool, BookHotelTool]}
       />
     </div>
   );
