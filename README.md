@@ -2,6 +2,12 @@
 
 A demonstration project showcasing Langgraph's capabilities for Multi-Agent Collaboration (Swarm-Agents) and Human In The Loop (HITL) interactions.
 
+
+
+https://github.com/user-attachments/assets/ae7a3f6f-8adb-45ef-8482-24f60cb57568
+
+
+
 ## Overview
 
 Langgraph-HITL-Form demonstrates how AI agents can interact with humans through form-based data collection. This project provides a clean, user-friendly interface for conversational AI that can pause to request structured information from users when needed. It showcases an elegant approach to handling complex or sensitive data input requirements in AI workflows.
