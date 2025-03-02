@@ -1,37 +1,24 @@
-"use client";
-
-import { Thread } from "@assistant-ui/react";
-import { PriceSnapshotTool } from "@/components/tools/price-snapshot/PriceSnapshotTool";
-import { PurchaseStockTool } from "@/components/tools/purchase-stock/PurchaseStockTool";
-import { BookHotelTool } from "@/components/tools/book-hotel/BookHotelTool";
-import { ToolFallback } from "@/components/tools/ToolFallback";
-import { makeMarkdownText } from "@assistant-ui/react-markdown";
-
-const MarkdownText = makeMarkdownText({});
+import Link from "next/link";
+import ChatClient from "@/components/ChatClient";
 
 export default function Home() {
   return (
-    <div className="flex h-full flex-col">
-      <Thread
-        welcome={{
-          suggestions: [
-            {
-              prompt: "How much revenue did Apple make last year?",
-            },
-            {
-              prompt: "Is McDonald's profitable?",
-            },
-            {
-              prompt: "What's the current stock price of Tesla?",
-            },
-            {
-              prompt: "I want to book a hotel",
-            },
-          ],
-        }}
-        assistantMessage={{ components: { Text: MarkdownText, ToolFallback } }}
-        tools={[PriceSnapshotTool, PurchaseStockTool, BookHotelTool]}
-      />
-    </div>
-  );
+    <main className="h-[100dvh] bg-black text-white overflow-hidden">
+      <div className="h-full flex flex-col">
+        <header className="flex justify-between items-center p-4 bg-black border-b border-zinc-800">
+          <h1 className="text-2xl font-bold">AI Chat</h1>
+          <Link 
+            href="/config" 
+            className="px-4 py-2 bg-zinc-800 text-white rounded-md hover:bg-zinc-700 transition"
+          >
+            Settings
+          </Link>
+        </header>
+        <div className="flex-1 overflow-hidden">
+          <ChatClient />
+        </div>
+      </div>
+    </main>
+  )
 }
+
