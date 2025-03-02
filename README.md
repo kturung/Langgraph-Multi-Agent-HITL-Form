@@ -22,6 +22,27 @@ Traditional AI assistants gather information through conversational back-and-for
 
 This demo shows how Langgraph can interrupt the conversational flow to present structured forms to users, collecting precise data needed for tool execution, then resuming the AI workflow once data is provided.
 
+## When to Use HITL Forms
+
+✅ **Beneficial Use Cases:**
+- Creating issue tickets with multiple fields
+- User registration processes
+- Form-based data collection workflows
+- Protecting sensitive information with structured input
+- Any tool requiring numerous parameters
+
+❌ **Less Beneficial Use Cases:**
+- Simple tools with 1-2 parameters
+- Non-sensitive data that's easy to extract from conversation
+- Scenarios where conversational flow shouldn't be interrupted
+
+## How It Works
+
+1. The AI agent determines it needs additional information to complete a task
+2. The agent pauses the conversation and presents a structured form
+3. The user fills out the form with the required information
+4. Upon submission, the data entered can either be redirected to agent or processed internally. 
+
 ## Features
 
 - 🤖 Multi-Agent Collaboration with Langgraph's Swarm-Agents
@@ -53,13 +74,7 @@ This demo shows how Langgraph can interrupt the conversational flow to present s
 - Python 3.11.6
 - uv or poetry
 
-### Installation
-
-1. Clone the repository
-```bash
-git clone https://github.com/yourusername/langgraph-hitl-form.git
-cd langgraph-hitl-form
-```
+## Installation
 
 ### Backend Setup
 
@@ -99,29 +114,6 @@ npm install
 npm run dev
 ```
 
-## Usage Examples
-
-### When to Use HITL Forms
-
-✅ **Beneficial Use Cases:**
-- Creating issue tickets with multiple fields
-- User registration processes
-- Form-based data collection workflows
-- Protecting sensitive information with structured input
-- Any tool requiring numerous parameters
-
-❌ **Less Beneficial Use Cases:**
-- Simple tools with 1-2 parameters
-- Non-sensitive data that's easy to extract from conversation
-- Scenarios where conversational flow shouldn't be interrupted
-
-### How It Works
-
-1. The AI agent determines it needs additional information to complete a task
-2. The agent pauses the conversation and presents a structured form
-3. The user fills out the form with the required information
-4. Upon submission, the agent receives the structured data and continues processing
-5. The conversation resumes with the agent using the collected information
 
 ## Configuration
 
