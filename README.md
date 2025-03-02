@@ -75,7 +75,13 @@ source .venv/bin/activate
 uv sync
 ```
 
-3. Start the backend server
+3. Update .env file in the backend folder with the following:
+```bash
+OPENAI_API_KEY=your_openai_api_key
+```
+You can use other providers as well. Follow the langchain documentation to set up other providers.
+
+1. Start the backend server
 ```bash
 langgraph dev
 ```
